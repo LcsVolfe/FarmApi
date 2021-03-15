@@ -97,26 +97,14 @@ class Activity(models.Model):
     date = models.DateTimeField(null=True, blank=True)
 
 
-class ClinicalAnalysis(models.Model):
-    active = models.BooleanField(default=True)
-    nLab = models.CharField(max_length=100, null=True, blank=True)
-    reference = models.CharField(max_length=100, null=True, blank=True)
-    # ---- CONTINUAR DE MAPEAR OS ELEMENTOS
-    # ---- CONTINUAR DE MAPEAR OS ELEMENTOS
-    # ---- CONTINUAR DE MAPEAR OS ELEMENTOS
-    # ---- CONTINUAR DE MAPEAR OS ELEMENTOS
-
-
 class Planting(models.Model):
     active = models.BooleanField(default=True)
-    # collections = models.ManyToManyField(SamplingPoint)
     area = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
     seed = models.CharField(max_length=100, null=True, blank=True)
-    # activities = models.ManyToManyField(Activity)
 
 
 class SamplingPoint(models.Model):
@@ -126,5 +114,32 @@ class SamplingPoint(models.Model):
     longitude = models.CharField(max_length=100, null=True, blank=True)
     planting = models.ForeignKey(Planting, on_delete=models.CASCADE, null=True)
     start = models.DateTimeField(null=True, blank=True)
-    clinicalAnalysi = models.ForeignKey(ClinicalAnalysis, on_delete=models.CASCADE, null=True)
     grid = models.IntegerField(null=True, blank=True)
+
+
+class ClinicalAnalysis(models.Model):
+    active = models.BooleanField(default=True)
+    nLab = models.CharField(max_length=100, null=True, blank=True)
+    reference = models.CharField(max_length=100, null=True, blank=True)
+    argila = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    ph = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    smp = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    p = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    k = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    ctc = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    samplingPoint = models.ForeignKey(SamplingPoint, on_delete=models.CASCADE, null=True)
+
+
+class PlantingArea(models.Model):
+    active = models.BooleanField(default=True)
+    accuracy = models.CharField(max_length=100, null=True, blank=True)
+    latitude = models.CharField(max_length=100, null=True, blank=True)
+    longitude = models.CharField(max_length=100, null=True, blank=True)
+    planting = models.ForeignKey(Planting, on_delete=models.CASCADE, null=True)
+
+
+class CompactionPoint(models.Model):
+    active = models.BooleanField(default=True)
+    SamplingPoint = models.ForeignKey(SamplingPoint, on_delete=models.CASCADE, null=True)
+    depth = models.IntegerField(null=True)
+    value = models.DecimalField(max_digits=10, decimal_places=2, null=True)

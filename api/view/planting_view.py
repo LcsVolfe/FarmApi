@@ -6,7 +6,8 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.forms.models import model_to_dict
 
-from api.models import Planting, SamplingPoint
+from api.models import Planting, SamplingPoint, PlantingArea
+from api.serializer.planting_area_serializer import PlantingAreaSerializer
 from api.serializer.plantings_serializer import PlantingSerializer
 from api.serializer.sampling_points_serializer import SamplingPointSerializer
 
@@ -20,8 +21,14 @@ class PlantingsViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
+        planting = Planting.objects.get(id=serializer.data['id'])
+
+        for point in request.data['plantingArea']:
+            planting_area = PlantingAreaSerializer(data=point)
+            planting_area.is_valid(raise_exception=True)
+            planting_area.save(planting=planting)
+
         if len(request.data['points']) > 0:
-            planting = Planting.objects.get(id=serializer.data['id'])
             for point in request.data['points']:
                 s_point = SamplingPointSerializer(data=point)
                 if s_point.is_valid():
@@ -53,10 +60,16 @@ class PlantingsViewSet(viewsets.ModelViewSet):
             for item in queryset:
                 dict = model_to_dict(item)
                 points = list(SamplingPoint.objects.filter(planting_id=item.id))
+                planting_area = list(PlantingArea.objects.filter(planting_id=item.id))
+                dict['points'] = []
                 if len(points) > 0:
-                    dict['points'] = []
                     for point in points:
                         dict['points'].append(model_to_dict(point))
+
+                dict['plantingArea'] = []
+                if len(planting_area) > 0:
+                    for point in planting_area:
+                        dict['plantingArea'].append(model_to_dict(point))
                 ret.append(dict)
 
         # serializer = PlantingSerializer(queryset, many=True)
@@ -68,10 +81,23 @@ class PlantingsViewSet(viewsets.ModelViewSet):
         queryset = Planting.objects.get(pk=pk)
         planting = model_to_dict(queryset)
         points = list(SamplingPoint.objects.filter(planting_id=planting['id']))
+        planting_area = list(PlantingArea.objects.filter(planting_id=planting['id']))
+        planting['points'] = []
         if len(points) > 0:
-            planting['points'] = []
             for point in points:
-                planting['points'].append(model_to_dict(point))
+                dict = model_to_dict(point)
+                dict['weight'] = 10
+                dict['latitude'] = float(dict['latitude'])
+                dict['longitude'] = float(dict['longitude'])
+                planting['points'].append(dict)
+
+        planting['plantingArea'] = []
+        if len(planting_area) > 0:
+            for point in planting_area:
+                dict = model_to_dict(point)
+                dict['latitude'] = float(dict['latitude'])
+                dict['longitude'] = float(dict['longitude'])
+                planting['plantingArea'].append(dict)
 
         return Response(planting, status=status.HTTP_200_OK)
         # serializer = PlantingSerializer(queryset)
