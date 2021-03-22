@@ -3,6 +3,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from django.forms.models import model_to_dict
 
@@ -102,3 +103,11 @@ class PlantingsViewSet(viewsets.ModelViewSet):
         return Response(planting, status=status.HTTP_200_OK)
         # serializer = PlantingSerializer(queryset)
         # return Response(serializer.data)
+
+
+class PlantingsSearchByFarmViewSet(viewsets.ModelViewSet):
+    def get_queryset(self):
+        queryset = Planting.objects.filter(farm=self.request.GET.get('farm_id', ''))
+        return queryset
+
+    serializer_class = PlantingSerializer
