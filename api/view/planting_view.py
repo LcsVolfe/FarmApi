@@ -69,7 +69,11 @@ class PlantingsViewSet(viewsets.ModelViewSet):
                 dict['points'] = []
                 if len(points) > 0:
                     for point in points:
-                        dict['points'].append(model_to_dict(point))
+                        point_dict = model_to_dict(point)
+                        point_dict['latitude'] = float(point_dict['latitude'])
+                        point_dict['longitude'] = float(point_dict['longitude'])
+                        point_dict['wieght'] = 1
+                        dict['points'].append(point_dict)
 
                 dict['plantingArea'] = []
                 if len(planting_area) > 0:
